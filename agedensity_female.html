@@ -1,0 +1,295 @@
+<html>
+<head>
+  <title>Project 1 - Female Age Density</title>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+
+  <style>
+    .gridlines line {
+      stroke: #bbb;
+    }
+
+    .gridlines .domain {
+      stroke: none;
+    }
+
+    .legend span {
+    margin-right: 10px;
+    }
+
+  </style>
+
+
+</head>
+<body>
+
+  <h3> Kylie Kurz kjk248 </h3>
+
+  <svg id="ageplot" height="500" width="800" style="margin-top:50px" >
+  </svg>
+
+  <script>
+
+  const svg = d3.select("svg#ageplot");
+  const width = svg.attr("width");
+  const height = svg.attr("height");
+  const margin = {top: 10, right: 10, bottom: 50, left: 50};
+  const chartWidth = width - margin.left - margin.right;
+  const chartHeight = height - margin.top - margin.bottom;
+
+  let annotations = svg.append("g").attr("id","annotations");
+  let chartArea = svg.append("g").attr("id","points")
+                  .attr("transform",`translate(${margin.left},${margin.top})`);
+
+  chartArea.append("text")
+          .attr("x", (width / 2))
+          .attr("y", (margin.top / 2))
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .style("text-decoration", "underline")
+          .text("Bachelor Contestants Age");
+
+  d3.csv("bachelor-contestants.csv", d3.autoType).then( (data) => {
+
+    data = data.filter( (d) => {return d['Age'] >= 20;}  );
+
+
+ // x axis:
+    const ageExtent = d3.extent(data, d => d['Age'] );
+
+    const ageScale = d3.scaleLinear()
+                      .domain([ageExtent[0] - 1, ageExtent[1] + 1 ])
+                      .range([0, chartWidth]);
+
+    let bottomAxis = d3.axisBottom(ageScale)
+                        .ticks(17);
+
+    let bottomGridlines = d3.axisBottom(ageScale)
+                            .tickSize(-chartHeight-10)
+                            .tickFormat("")
+                            .ticks(17);
+
+    annotations.append("g")
+              .attr("class", "x axis")
+              .attr("transform",`translate(${margin.left},${chartHeight+margin.top+10})`)
+              .call(bottomAxis);
+    annotations.append("g")
+              .attr("class", "x gridlines")
+              .attr("transform",`translate(${margin.left},${chartHeight+margin.top+10})`)
+              .call(bottomGridlines);
+
+//set parameters for the Histogram:
+    var histogram = d3.histogram()
+                      .value(function(d) {return d.Age;})
+                      .domain(ageScale.domain())
+                      .thresholds(ageScale.ticks(17));
+
+    var bins = histogram(data);
+
+// y axis:
+    const contestantScale = d3.scaleLinear()
+                              .domain([0, d3.max(bins, function(d) {return d.length;})]) // this needs to be changed
+                              .range([chartHeight, 0]);
+
+    let leftAxis = d3.axisLeft(contestantScale)
+
+    annotations.append("g")
+              .attr("class", "y axis")
+              .attr("transform",`translate(${margin.left-10},${margin.top})`)
+              .call(leftAxis);
+
+// histogram:
+    // chartArea.selectAll("rect")
+    //     .data(bins)
+    //     .enter()
+    //     .append("rect")
+    //       .attr("x", 1)
+    //       .attr("transform", d => { return "translate(" + ageScale(d.x0) + "," + contestantScale(d.length) + ")"; })
+    //       .attr("width", d => { return ageScale(d.x1) - ageScale(d.x0) - 1 ; })
+    //       .attr("height", d => { return chartHeight - contestantScale(d.length); })
+    //       .style("fill", "#69b3a2")
+
+
+
+ // add a line:
+
+    var lineGen = d3.line()
+                  .x( d => ageScale((d.x0) ))
+                  .y( d => contestantScale(d.length) )
+                  .curve(d3.curveMonotoneX);
+
+    chartArea.append("path")
+              .datum(bins)
+              .attr("class", "line")
+              .attr("fill", "#69b3a2")
+              .attr("opacity", 0.6)
+              .attr("stroke", "#69b3a2")
+              .attr("stroke-width", 3)
+              .attr("d", lineGen);
+
+
+/////// FINAL FOUR ONLY ////////////
+
+// add in column for winner:
+  data.forEach( (d, i) => {
+      if (d["ElimWeek"] === null){
+        d["ElimWeek"] = 'W';
+        d["Winner"] = 1;
+      }
+      else { d["Winner"] = 0;}
+    });
+
+// add in column final four:
+
+  data.forEach( (d, i) => {
+      if (d["Season"] === 1 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 4)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 2 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 5)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 5 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 5)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 9 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 5)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 10 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 6)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 11 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 6)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 12 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 6)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 13 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 6)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 14 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 6)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 15 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 8)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 16 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 8)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 17 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 8)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 18 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 8)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 19 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 8)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 20 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 8)) { d['finalFour'] = 1;}
+      else if (d["Season"] === 21 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 8)) { d['finalFour'] = 1;}
+      else {d['finalFour'] = 0;}
+    });
+
+    dataff = data.filter( (d) => {return d['Age'] >= 20   &&  d['finalFour'] === 1 ;}  );
+
+    var binsff = histogram(dataff);
+    chartArea.append("path")
+              .datum(binsff)
+              .attr("class", "line")
+              .attr("fill", "#69b3a2")
+              .attr("opacity", 0.7)
+              .attr("stroke", "#69b3a2")
+              .attr("stroke-width", 3)
+              .attr("d", lineGen);
+
+
+
+/////// Winners ONLY ////////////
+  dataW = data.filter( (d) => {return d['Age'] >= 20   &&  d['ElimWeek'] === "W" ;}  );
+
+  var binsW = histogram(dataW);
+  chartArea.append("path")
+          .datum(binsW)
+          .attr("class", "line")
+          .attr("fill", "#69b3a2")
+          .attr("opacity", 1.0)
+          .attr("stroke", "#69b3a2")
+          .attr("stroke-width", 3)
+          .attr("d", lineGen);
+
+/// Add legend ////
+  const legend = chartArea.append("g").attr("class", "legend").attr("transform","translate(10,10)");
+  legend.append("rect").attr("x", 580).attr("y", 10).attr("width", 160).attr("height", 100).attr("fill", "white").attr("stroke", "black");
+  legend.append("circle").attr("cx",600).attr("cy",30).attr("r", 6).style("fill", "#69b3a2").attr("opacity", 0.6)
+  legend.append("circle").attr("cx",600).attr("cy",60).attr("r", 6).style("fill", "#69b3a2").attr("opacity", 0.7)
+  legend.append("circle").attr("cx",600).attr("cy",90).attr("r", 6).style("fill", "#69b3a2").attr("opacity", 1.0)
+  legend.append("text").attr("x", 620).attr("y", 30).text("All Contestants").style("font-size", "15px").attr("alignment-baseline","middle")
+  legend.append("text").attr("x", 620).attr("y", 60).text("Final Four").style("font-size", "15px").attr("alignment-baseline","middle")
+  legend.append("text").attr("x", 620).attr("y", 90).text("Winners").style("font-size", "15px").attr("alignment-baseline","middle")
+
+//// Add average markers //////
+
+      //average female contestant age:
+      let sumAge = 0
+      let totContest = 0
+      data.forEach( (d, i) => {
+      sumAge += d["Age"];
+      totContest += 1;
+        });
+      let avgAge = Math.floor(sumAge/totContest);
+
+
+
+
+      // average winner age:
+      sumAge = 0
+      totContest = 0
+      dataW.forEach( (d, i) => {
+      sumAge += d["Age"];
+      totContest += 1;
+        });
+      let avgWAge = Math.floor(sumAge/totContest);
+
+
+      const avgAgeLabel = chartArea.append("g").attr("class", "label");
+      avgAgeLabel.append("rect")
+            .attr("x", ageScale(avgAge))
+            .attr("y", 20)
+            .attr("width", 160)
+            .attr("height", 60)
+            .attr("fill", "white")
+            .attr("stroke", "darkgrey")
+            .attr("stroke-width", 3);
+      avgAgeLabel.append("text")
+            .attr("x", ageScale(avgAge) + 4)
+            .attr("y", 40)
+            .text("Average Age of ")
+            .style("font-size", "15px")
+            .attr("alignment-baseline","middle");
+      avgAgeLabel.append("text")
+            .attr("x", ageScale(avgAge) + 4)
+            .attr("y", 60)
+            .text("Female Contestants: 26")
+            .style("font-size", "15px")
+            .attr("alignment-baseline","middle");
+      avgAgeLabel.append("line")
+            .style("stroke", "darkgrey")
+            .style("stroke-width", 3)
+            .attr("x1", ageScale(avgAge))
+            .attr("x2", ageScale(avgAge))
+            .attr("y1", 20)
+            .attr("y2", chartHeight);
+
+      const wAgeLabel = chartArea.append("g").attr("class", "label");
+      wAgeLabel.append("rect")
+                .attr("x", ageScale(avgWAge) - 140)
+                .attr("y", 200)
+                .attr("width", 140)
+                .attr("height", 60)
+                .attr("fill", "white")
+                .attr("stroke", "darkgrey")
+                  .attr("stroke-width", 3);
+      wAgeLabel.append("text")
+                .attr("x", ageScale(avgWAge) - 136)
+                .attr("y", 220)
+                .text("Average Age of ")
+                .style("font-size", "15px")
+                .attr("alignment-baseline","middle");
+      wAgeLabel.append("text")
+                .attr("x", ageScale(avgWAge) - 136)
+                .attr("y", 240)
+                .text("Female Winners: 26")
+                .style("font-size", "15px")
+                .attr("alignment-baseline","middle");
+      wAgeLabel.append("line")
+                .style("stroke", "darkgrey")
+                .style("stroke-width", 3)
+                .attr("x1", ageScale(avgWAge))
+                .attr("x2", ageScale(avgWAge))
+                .attr("y1", 200)
+                .attr("y2", chartHeight)
+
+
+  }); // end promise
+
+
+
+  </script>
+
+
+
+
+
+
+</body>
+</html>
