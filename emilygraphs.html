@@ -1,10 +1,254 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
+
+  <!DOCTYPE html>
+  <html>
   <head>
+    <title>Lab4</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
     <meta charset="utf-8">
-    <title></title>
+
+    <style>
+
+    .legend span {
+      margin-right: 10px;
+    }
+
+    .gridlines line {
+      stroke: #bbb;
+    }
+
+    .gridlines .domain {
+      stroke: none;
+    }
+
+  </style>
   </head>
   <body>
 
+    <svg id="batchelor" height="700" width="700" style="background: #FFFFFF;" ></svg>
+
+    <script>
+      d3.csv("Project-1-Dataset-Bachelor.csv", d3.autoType)
+        .then((dataset)=>{
+
+          const margin = { "top": 100, "right": 10, "bottom": 100, "left":100};
+          const svg = d3.select("svg#batchelor");
+          const width = svg.attr("width");
+          const height = svg.attr("height");
+
+          const chartWidth = width - margin.left - margin.right;
+          const chartHeight = height - margin.top - margin.bottom;
+          console.log(dataset)
+          seasonEx = d3.max(dataset, d => d["Season"])
+          const seasonscale = d3.scaleLinear().domain([12, seasonEx]).range([chartHeight, 0]);
+          elimEx = d3.max(dataset, d => d["ElimWeek"])
+          const elimscale = d3.scaleLinear().domain([0, elimEx+1]).range([ 0, chartWidth]);
+
+          x = dataset["ElimWeek"]
+          y = dataset["Season"]
+
+          let annotations = svg.append("g").attr("id","annotations");
+
+          let chartArea = svg.append("g").attr("id","ElimWeek")
+                  .attr("transform","translate("+margin.left+","+margin.top+")");
+
+          chartArea.append("text")
+          .attr("x", (width / 2)-50)
+          .attr("y", -50)
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .style("text-decoration", "underline")
+          .text("When are Minorities Eliminated in the Bachelor");
+
+          chartArea.append("text")
+          .attr("x", (width / 2)-50)
+          .attr("y", chartHeight+50)
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .text("Week Eliminated");
+
+
+          chartArea.append("text")
+          .attr("x", -250)
+          .attr("y", -50)
+          .attr("transform", "rotate(-90)")
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .text("Seasons");
+
+
+          d3.select("#label").raise();
+
+          let leftAxis = d3.axisLeft(seasonscale)
+                            .tickFormat(d3.format(""))
+          let leftGridlines = d3.axisLeft(seasonscale)
+                                .tickSize(-chartWidth-10)
+                                .tickFormat("")
+
+          annotations.append("g")
+            .attr("class", "y axis")
+            .attr("transform","translate("+(margin.left-1)+"," + (margin.top)+")")
+            .call(leftAxis)
+
+          annotations.append("g")
+            .attr("class", "y gridlines")
+            .attr("transform","translate("+(margin.left-1)+","+margin.top+")")
+            .call(leftGridlines);
+
+
+          let bottomAxis = d3.axisBottom(elimscale)
+                             .tickSize(5)
+                             .ticks(12);
+
+          let bottomGridlines = d3.axisBottom(elimscale).tickFormat("").tickSize(-chartHeight-10)
+
+          annotations.append("g")
+            .attr("class", "x axis")
+            .attr("transform","translate("+margin.left+","+(chartHeight+margin.top)+")")
+            .call(bottomAxis);
+
+          let minoritydata = dataset.filter((d)=>{return (d["Minority"]=="M"&& d["ElimWeek"]!=null);});
+          dataset.forEach((d, i) => {
+            if(d["Minority"]=="M"&& d["ElimWeek"]==1 && d["Season"]==21){
+              d["ElimWeek"]= 1+ Math.random()
+            }
+          });
+
+
+
+          let circles = chartArea.selectAll("circle.datapoint").data(minoritydata)
+                                  .join("circle")
+                                  .attr("cx", d=>elimscale(d["ElimWeek"]))
+                                  .attr("cy", d=>seasonscale(d['Season']))
+                                  .attr("r", 10)
+                                  .attr("opacity", .6)
+                                  .attr("fill", "#FB6090")
+
+        });
+
+
+
+
+
+    </script>
+
+
+
+    <svg id="batchelorette" height="700" width="700" style="background: #FFFFFF;" >
+
+    </svg>
+
+    <script>
+      d3.csv("Project-1-Dataset-Bachelorette.csv", d3.autoType)
+        .then((dataset)=>{
+
+          const margin = { "top": 100, "right": 10, "bottom": 100, "left":100};
+          const svg = d3.select("svg#batchelorette");
+          const width = svg.attr("width");
+          const height = svg.attr("height");
+
+          const chartWidth = width - margin.left - margin.right;
+          const chartHeight = height - margin.top - margin.bottom;
+          console.log(dataset)
+          seasonEx = d3.max(dataset, d => d["Season"])
+          const seasonscale = d3.scaleLinear().domain([4, seasonEx]).range([chartHeight, 0]);
+          elimEx = d3.max(dataset, d => d["ElimWeek"])
+          const elimscale = d3.scaleLinear().domain([0, elimEx+1]).range([ 0, chartWidth]);
+
+          x = dataset["ElimWeek"]
+          y = dataset["Season"]
+
+          let annotations = svg.append("g").attr("id","annotations");
+
+          let chartArea = svg.append("g").attr("id","ElimWeek")
+                  .attr("transform","translate("+margin.left+","+margin.top+")");
+
+          chartArea.append("text")
+          .attr("x", (width / 2)-50)
+          .attr("y", -50)
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .style("text-decoration", "underline")
+          .text("When are Minorities Eliminated in the Bachelor");
+
+          chartArea.append("text")
+          .attr("x", (width / 2)-50)
+          .attr("y", chartHeight+50)
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .text("Week Eliminated");
+
+
+          chartArea.append("text")
+          .attr("x", -250)
+          .attr("y", -50)
+          .attr("transform", "rotate(-90)")
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .text("Seasons");
+
+
+          d3.select("#label").raise();
+
+          let leftAxis = d3.axisLeft(seasonscale)
+                            .tickFormat(d3.format(""))
+          let leftGridlines = d3.axisLeft(seasonscale)
+                                .tickSize(-chartWidth-10)
+                                .tickFormat("")
+
+          annotations.append("g")
+            .attr("class", "y axis")
+            .attr("transform","translate("+(margin.left-1)+"," + (margin.top)+")")
+            .call(leftAxis)
+
+          annotations.append("g")
+            .attr("class", "y gridlines")
+            .attr("transform","translate("+(margin.left-1)+","+margin.top+")")
+            .call(leftGridlines);
+
+
+          let bottomAxis = d3.axisBottom(elimscale)
+                             .tickSize(5)
+                             .ticks(12);
+
+          let bottomGridlines = d3.axisBottom(elimscale).tickFormat("").tickSize(-chartHeight-10)
+
+          annotations.append("g")
+            .attr("class", "x axis")
+            .attr("transform","translate("+margin.left+","+(chartHeight+margin.top)+")")
+            .call(bottomAxis);
+
+          let minoritydata = dataset.filter((d)=>{return (d["Minority"]=="M"&& d["ElimWeek"]!=null);});
+          dataset.forEach((d, i) => {
+            if(d["Minority"]=="M"&& (d["ElimWeek"]==1 && d["Season"]==16) || (d["ElimWeek"]==2 && d["Season"]==16)
+                || (d["ElimWeek"]==7 && d["Season"]==16) || (d["ElimWeek"]==8 && d["Season"]==16)
+                || (d["ElimWeek"]==1 && d["Season"]==15)|| (d["ElimWeek"]==1 && d["Season"]==14) || (d["ElimWeek"]==3 && d["Season"]==14)
+                || (d["ElimWeek"]==4 && d["Season"]==14) || (d["ElimWeek"]==7 && d["Season"]==14)
+                || ((d["ElimWeek"]==1 || d["ElimWeek"]==3 || d["ElimWeek"]==5 || d["ElimWeek"]==6) && d["Season"]==13)
+                || ((d["ElimWeek"]==1 || d["ElimWeek"]==3) && d["Season"]==13)
+                || ((d["ElimWeek"]==1 || d["ElimWeek"]==3) && d["Season"]==12)
+                || ((d["ElimWeek"]==1 || d["ElimWeek"]==6) && d["Season"]==9))
+                {
+                  d["ElimWeek"]= d["ElimWeek"] + Math.random()
+                }
+          });
+
+
+
+          let circles = chartArea.selectAll("circle.datapoint").data(minoritydata)
+                                  .join("circle")
+                                  .attr("cx", d=>elimscale(d["ElimWeek"]))
+                                  .attr("cy", d=>seasonscale(d['Season']))
+                                  .attr("r", 10)
+                                  .attr("opacity", .6)
+                                  .attr("fill", "#2E8BC0")
+
+        });
+
+
+
+
+
+    </script>
   </body>
+
 </html>
