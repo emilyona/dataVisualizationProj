@@ -1,0 +1,294 @@
+<html>
+<head>
+<title> Bar graph </title>
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<style>
+
+body {
+  margin: 50px;
+}
+
+.gridlines line {
+  stroke: #bbb;
+}
+.gridlines .domain {
+  stroke: none;
+}
+.text {
+  color: white;
+}
+
+</style>
+</head>
+
+<body>
+<svg id="barchart" height="500" width="1000"></svg>
+<svg id="barchart2" height="500" width="1000"></svg>
+
+<script>
+
+//creating a bar graph for FEMALE contestants for the bachelor
+
+console.log( d3.csv("../count_data_bachelor.csv") );
+
+//creating space for second graph
+const svg2 = d3.select("svg#barchart2");
+const width2 = svg2.attr("width");
+const height2 = svg2.attr("height");
+const margin2 = {top: 10, right: 10, bottom: 70, left: 50};
+const chartWidth2 = width2 - margin2.left - margin2.right;
+const chartHeight2 = height2 - margin2.top - margin2.bottom;
+
+let annotations2 = svg2.append("g").attr("id","annotations");
+let chartArea2 = svg2.append("g").attr("id","points")
+                  .attr("transform",`translate(${margin2.left},${margin2.top})`);
+
+d3.csv("../count_data_bachelor.csv").then( data => { console.log("data", data);
+
+//making sure each value is a number and not a string
+data.forEach((d, i) => {
+  d['id'] = Number(d['id']);
+  d['season'] = Number(d['season']);
+  d['totalcast'] = Number(d['totalcast']);
+  d['minority'] = Number(d['minority']);
+  d['white'] = Number(d['white']);
+});
+
+console.log(data)
+
+//creating scales
+const countScale = d3.scaleLinear().domain([0,45]).range([chartHeight2, 0]);
+
+const seasons = d3.map(data, d => d.season)
+  console.log(seasons)
+const seasonScale = d3.scaleBand().domain(seasons).range([0, chartWidth2])
+                         .padding(0.3);
+
+//axis and gridlines
+let leftAxis = d3.axisLeft(countScale);
+let leftGridlines = d3.axisLeft(countScale)
+                         .tickSize(-chartWidth2-10)
+                         .tickFormat("")
+annotations2.append("g")
+          .attr("class", "y axis")
+          .attr("transform",`translate(${margin2.left-10},${margin2.top})`)
+          .call(leftAxis)
+annotations2.append("g")
+          .attr("class", "y gridlines")
+          .attr("transform",`translate(${margin2.left-10},${margin2.top})`)
+          .call(leftGridlines);
+let bottomAxis = d3.axisBottom(seasonScale)
+
+annotations2.append("g")
+            .attr("class", "x axis")
+            .attr("transform",`translate(${margin2.left},${chartHeight2+margin2.top+10})`)
+            .call(bottomAxis);
+
+//axis labels
+chartArea2.append("text").attr("class", "x label")
+    .attr("text-anchor", "middle")
+    .attr("x", width/2)
+    .attr("y", height - 30)
+    .text("TV Show BACHELOR Seasons");
+
+chartArea2.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "middle")
+    .attr("y", -50)
+    .attr("x", -200)
+    .attr("dy", "0.75em")
+    .attr("transform", "rotate(-90)")
+    .text("Number of People");
+
+//creating bars
+var bar = chartArea2.selectAll("rect.bar")
+         .data(data);
+
+bar.enter().append("rect").attr("class","bar")
+          .attr("fill", "#FFC5D0")
+          .attr("x", d => seasonScale(d.season))
+          .attr("y", d => countScale(d.totalcast))
+          .attr("height", d => countScale(d.minority) - countScale(d.totalcast))
+          .attr("width", seasonScale.bandwidth());
+
+
+bar.enter().append("rect").attr("class","bar")
+    .attr("fill", "#821D30")
+    .attr("x", d => seasonScale(d.season))
+    .attr("y", d => countScale(d.minority))
+    .attr("height", d => countScale(0) - countScale(d.minority))
+    .attr("width", seasonScale.bandwidth());
+
+
+//adding numbers to the bars
+data.forEach((d, i) => {
+
+  svg2.append("text")
+          .attr("text-anchor","hanging")
+          .attr("font-size","15px")
+          .attr("x",seasonScale(d.season)+77)
+          .attr('y',countScale(d.minority))
+          .text(d.minority);
+  svg2.append("text")
+          .attr("text-anchor","hanging")
+          .attr("font-weight", "bold")
+          .attr("font-size","17px")
+          .attr("x",seasonScale(d.season)+77)
+          .attr('y',countScale(d.totalcast))
+          .text(d.white);
+
+});
+
+//creating legends
+const legend2 = chartArea2.append("g")
+                .attr("class", "legend")
+                .attr("transform","translate(10,10)");
+legend2.append("rect").attr("x", 20).attr("y", 10).attr("width", 230).attr("height", 70).attr("fill", "white").attr("stroke", "black");
+legend2.append("circle").attr("cx",40).attr("cy",30).attr("r", 8).style("fill", "#FFC5D0")
+legend2.append("circle").attr("cx",40).attr("cy",60).attr("r", 8).style("fill", "#821D30")
+legend2.append("text").attr("x", 60).attr("y", 30).text("Caucasian Contestants").style("font-size", "17px").attr("alignment-baseline","middle")
+legend2.append("text").attr("x", 60).attr("y", 60).text("Minority Constestans").style("font-size", "17px").attr("alignment-baseline","middle")
+
+
+//ending
+},
+
+//in case of error
+error => {console.log("error", error);
+});
+</script>
+
+
+<script>
+
+//creating a bar graph for MALE contestants for the bachelorette
+
+console.log( d3.csv("../counted_data.csv") );
+
+//creating space for the other graph
+const svg = d3.select("svg#barchart");
+const width = svg.attr("width");
+const height = svg.attr("height");
+const margin = {top: 10, right: 10, bottom: 70, left: 50};
+const chartWidth = width - margin.left - margin.right;
+const chartHeight = height - margin.top - margin.bottom;
+
+let annotations = svg.append("g").attr("id","annotations");
+let chartArea = svg.append("g").attr("id","points")
+                  .attr("transform",`translate(${margin.left},${margin.top})`);
+
+
+d3.csv("../counted_data.csv").then( data => { console.log("data", data);
+
+//making sure each value is a number and not a string
+data.forEach((d, i) => {
+  d['id'] = Number(d['id']);
+  d['season'] = Number(d['season']);
+  d['totalcast'] = Number(d['totalcast']);
+  d['minority'] = Number(d['minority']);
+  d['white'] = Number(d['white']);
+});
+console.log(data)
+
+//creating scales
+const leftScale = d3.scaleLinear().domain([0,45]).range([chartHeight, 0]);
+
+const seasons = d3.map(data, d => d.season)  // d3.map just runs a function on each item in an array
+  console.log(seasons)
+const seasonScale = d3.scaleBand().domain(seasons).range([0, chartWidth])
+                         .padding(0.2);
+
+//axis and gridlines
+let leftAxis = d3.axisLeft(leftScale);
+let leftGridlines = d3.axisLeft(leftScale)
+                         .tickSize(-chartWidth-10)
+                         .tickFormat("")
+annotations.append("g")
+            .attr("class", "y axis")
+            .attr("transform",`translate(${margin.left-10},${margin.top})`)
+            .call(leftAxis)
+annotations.append("g")
+            .attr("class", "y gridlines")
+            .attr("transform",`translate(${margin.left-10},${margin.top})`)
+            .call(leftGridlines);
+let bottomAxis = d3.axisBottom(seasonScale)
+
+annotations.append("g")
+            .attr("class", "x axis")
+            .attr("transform",`translate(${margin.left},${chartHeight+margin.top+10})`)
+            .call(bottomAxis);
+
+//axis labels
+chartArea.append("text").attr("class", "x label")
+      .attr("text-anchor", "middle")
+      .attr("x", width/2)
+      .attr("y", height - 30)
+      .text("TV Show BACHELORETTE Seasons");
+
+chartArea.append("text")
+      .attr("class", "y label")
+      .attr("text-anchor", "middle")
+      .attr("y", -50)
+      .attr("x", -200)
+      .attr("dy", "0.75em")
+      .attr("transform", "rotate(-90)")
+      .text("Number of People");
+
+
+//creating bars
+var bar = chartArea.selectAll("rect.bar")
+         .data(data);
+
+bar.enter().append("rect").attr("class","bar")
+          .attr("fill", "#B1D4E0")
+          .attr("x", d => seasonScale(d.season))
+          .attr("y", d => leftScale(d.totalcast))
+          .attr("height", d => leftScale(d.minority) - leftScale(d.totalcast))
+          .attr("width", seasonScale.bandwidth());
+
+
+bar.enter().append("rect").attr("class","bar")
+    .attr("fill", "#0C2D48")
+    .attr("x", d => seasonScale(d.season))
+    .attr("y", d => leftScale(d.minority))
+    .attr("height", d => leftScale(0) - leftScale(d.minority))
+    .attr("width", seasonScale.bandwidth());
+
+//adding numbers to the bars
+data.forEach((d, i) => {
+
+  svg.append("text")
+          .attr("text-anchor","hanging")
+          .attr("font-size","15px")
+          .attr("x",seasonScale(d.season)+77)
+          .attr('y',leftScale(d.minority))
+          .text(d.minority);
+  svg.append("text")
+          .attr("text-anchor","hanging")
+          .attr("font-weight", "bold")
+          .attr("font-size","17px")
+          .attr("x",seasonScale(d.season)+77)
+          .attr('y',leftScale(d.totalcast))
+          .text(d.white);
+});
+
+//making legends
+const legend = chartArea.append("g")
+              .attr("class", "legend")
+              .attr("transform","translate(10,10)");
+legend.append("rect").attr("x", 20).attr("y", 10).attr("width", 230).attr("height", 70).attr("fill", "white").attr("stroke", "black");
+legend.append("circle").attr("cx",40).attr("cy",30).attr("r", 6).style("fill", "#B1D4E0")
+legend.append("circle").attr("cx",40).attr("cy",60).attr("r", 6).style("fill", "#0C2D48")
+legend.append("text").attr("x", 60).attr("y", 30).text("Caucasian Contestants").style("font-size", "17px").attr("alignment-baseline","middle")
+legend.append("text").attr("x", 60).attr("y", 60).text("Minority Constestans").style("font-size", "17px").attr("alignment-baseline","middle")
+
+//ending
+},
+
+//in case of error
+error => {console.log("error", error);
+});
+</script>
+
+</body>
+</html>
