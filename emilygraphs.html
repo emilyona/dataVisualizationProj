@@ -170,7 +170,7 @@
           .attr("text-anchor", "middle")
           .style("font-size", "16px")
           .style("text-decoration", "underline")
-          .text("When are Minorities Eliminated in the Bachelorette");
+          .text("When are Minorities Eliminated in the Bachelor");
 
           chartArea.append("text")
           .attr("x", (width / 2)-50)
@@ -244,14 +244,7 @@
                                   .attr("opacity", .6)
                                   .attr("fill", "#2E8BC0")
 
-           let sym = d3.symbol().type(d3.symbolStar).size(500);
-                                d3.select("svg#batchelorette")
-                                    .append("path")
-                                    .attr("cx", d=>elimscale(d["ElimWeek"]))
-                                    .attr("cy", d=>seasonscale(d['Season']))
-                                    .attr("d", sym)
-                                    .attr("fill", "red")
-                                    .attr("transform", "translate(50, 50)");
+           
 
         });
 
