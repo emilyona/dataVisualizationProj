@@ -24,7 +24,7 @@
 
   <h3> Kylie Kurz kjk248 </h3>
 
-  <svg id="ageplot" height="500" width="800" style="margin-top:50px" >
+  <svg id="ageplot" height="525" width="900" style="margin-top:50px" >
   </svg>
 
   <script>
@@ -32,13 +32,29 @@
   const svg = d3.select("svg#ageplot");
   const width = svg.attr("width");
   const height = svg.attr("height");
-  const margin = {top: 10, right: 10, bottom: 50, left: 50};
+  const margin = {top: 10, right: 10, bottom: 75, left: 100};
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
 
   let annotations = svg.append("g").attr("id","annotations");
   let chartArea = svg.append("g").attr("id","points")
                   .attr("transform",`translate(${margin.left},${margin.top})`);
+
+// // add axis lables:
+svg.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "middle")
+    .attr("y", 50)
+    .attr("x", -chartHeight/2)
+    .attr("transform", "rotate(-90)")
+    .text("Number of Contestants");
+
+svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "middle")
+    .attr("y", chartHeight + margin.bottom)
+    .attr("x", chartWidth/2 + 100)
+    .text("Age (years)");
 
 // create title:
   chartArea.append("text")
@@ -98,16 +114,7 @@
               .attr("transform",`translate(${margin.left-10},${margin.top})`)
               .call(leftAxis);
 
-// histogram:
-    // chartArea.selectAll("rect")
-    //     .data(bins)
-    //     .enter()
-    //     .append("rect")
-    //       .attr("x", 1)
-    //       .attr("transform", d => { return "translate(" + ageScale(d.x0) + "," + contestantScale(d.length) + ")"; })
-    //       .attr("width", d => { return ageScale(d.x1) - ageScale(d.x0) - 1 ; })
-    //       .attr("height", d => { return chartHeight - contestantScale(d.length); })
-    //       .style("fill", "#69b3a2")
+
 
 
 
@@ -121,9 +128,9 @@
     chartArea.append("path")
               .datum(bins)
               .attr("class", "line")
-              .attr("fill", "#69b3a2")
-              .attr("opacity", 0.6)
-              .attr("stroke", "#69b3a2")
+              .attr("fill", "#B1D4E0")
+              .attr("opacity", 0.7)
+              .attr("stroke", "#B1D4E0")
               .attr("stroke-width", 3)
               .attr("d", lineGen);
 
@@ -140,7 +147,7 @@
     });
 
 // add in column final four:
-console.log(data);
+
 
 let seasonarr = [];
 data.forEach( (d, i) => {
@@ -148,7 +155,6 @@ data.forEach( (d, i) => {
     seasonarr.push(d["Season"]);
   }
 });
-console.log(seasonarr);
   data.forEach( (d, i) => {
       if (d["Season"] === 1 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 4)) { d['finalFour'] = 1;}
       else if (d["Season"] === 2 && (d["ElimWeek"] === "W" || d["ElimWeek"] >= 5)) { d['finalFour'] = 1;}
@@ -170,9 +176,9 @@ console.log(seasonarr);
     chartArea.append("path")
               .datum(binsff)
               .attr("class", "line")
-              .attr("fill", "#69b3a2")
+              .attr("fill", "#2E8BC0")
               .attr("opacity", 0.7)
-              .attr("stroke", "#69b3a2")
+              .attr("stroke", "#2E8BC0")
               .attr("stroke-width", 3)
               .attr("d", lineGen);
 
@@ -185,18 +191,18 @@ console.log(seasonarr);
   chartArea.append("path")
           .datum(binsW)
           .attr("class", "line")
-          .attr("fill", "#69b3a2")
+          .attr("fill", "#0C2D48")
           .attr("opacity", 1.0)
-          .attr("stroke", "#69b3a2")
+          .attr("stroke", "#0C2D48")
           .attr("stroke-width", 3)
           .attr("d", lineGen);
 
 /// Add legend ////
   const legend = chartArea.append("g").attr("class", "legend").attr("transform","translate(10,10)");
-  legend.append("rect").attr("x", 580).attr("y", 10).attr("width", 160).attr("height", 100).attr("fill", "white").attr("stroke", "black");
-  legend.append("circle").attr("cx",600).attr("cy",30).attr("r", 6).style("fill", "#69b3a2").attr("opacity", 0.6)
-  legend.append("circle").attr("cx",600).attr("cy",60).attr("r", 6).style("fill", "#69b3a2").attr("opacity", 0.7)
-  legend.append("circle").attr("cx",600).attr("cy",90).attr("r", 6).style("fill", "#69b3a2").attr("opacity", 1.0)
+  legend.append("rect").attr("x", 580).attr("y", 10).attr("width", 145).attr("height", 100).attr("fill", "white").attr("stroke", "black");
+  legend.append("circle").attr("cx",600).attr("cy",30).attr("r", 6).style("fill", "#B1D4E0").attr("opacity", 0.7)
+  legend.append("circle").attr("cx",600).attr("cy",60).attr("r", 6).style("fill", "#2E8BC0").attr("opacity", 0.7)
+  legend.append("circle").attr("cx",600).attr("cy",90).attr("r", 6).style("fill", "#0C2D48").attr("opacity", 1.0)
   legend.append("text").attr("x", 620).attr("y", 30).text("All Contestants").style("font-size", "15px").attr("alignment-baseline","middle")
   legend.append("text").attr("x", 620).attr("y", 60).text("Final Four").style("font-size", "15px").attr("alignment-baseline","middle")
   legend.append("text").attr("x", 620).attr("y", 90).text("Winners").style("font-size", "15px").attr("alignment-baseline","middle")
@@ -225,6 +231,7 @@ console.log(seasonarr);
       let avgWAge = Math.floor(sumAge/totContest);
 
 
+
       const avgAgeLabel = chartArea.append("g").attr("class", "label");
       avgAgeLabel.append("rect")
             .attr("x", ageScale(avgAge))
@@ -232,6 +239,7 @@ console.log(seasonarr);
             .attr("width", 140)
             .attr("height", 60)
             .attr("fill", "white")
+            .attr("opacity", 0.7)
             .attr("stroke", "darkgrey")
             .attr("stroke-width", 3);
       avgAgeLabel.append("text")
@@ -261,6 +269,7 @@ console.log(seasonarr);
                 .attr("width", 120)
                 .attr("height", 60)
                 .attr("fill", "white")
+                .attr("opacity", 0.7)
                 .attr("stroke", "darkgrey")
                   .attr("stroke-width", 3);
       wAgeLabel.append("text")
@@ -282,6 +291,58 @@ console.log(seasonarr);
                 .attr("x2", ageScale(avgWAge))
                 .attr("y1", 200)
                 .attr("y2", chartHeight)
+
+
+
+
+/// add in avg age of bachelor
+      d3.csv("bachelorettes.csv", d3.autoType).then( (data2) =>{
+
+
+          sumBAge = 0
+          totBach = 0
+          data2.forEach( (d, i) => {
+              if (d["Name"] === "Meredith Phillips") {d["Age"] = 30}
+              else if (d["Name"] === "Jennifer \"Jen\" Schefft") {d["Age"] = 30}
+              else if (d["Name"] === "DeAnna Pappas") {d["Age"] = 27}
+              else if (d["Name"] === "Ashley Hebert") {d["Age"] = 26}
+              else if (d["Name"] === "Emily Maynard") {d["Age"] = 26}
+              sumBAge += d["Age"];
+              totBach += 1;
+          });
+          let avgBachAge = Math.floor(sumBAge/totBach);
+
+
+          const bAgeLabel = chartArea.append("g").attr("class", "label");
+          bAgeLabel.append("rect")
+                    .attr("x", ageScale(avgBachAge) - 120)
+                    .attr("y", 300)
+                    .attr("width", 120)
+                    .attr("height", 60)
+                    .attr("fill", "white")
+                    .attr("opacity", 0.7)
+                    .attr("stroke", "darkgrey")
+                      .attr("stroke-width", 3);
+          bAgeLabel.append("text")
+                    .attr("x", ageScale(avgBachAge) - 116)
+                    .attr("y", 320)
+                    .text("Average Age of ")
+                    .style("font-size", "15px")
+                    .attr("alignment-baseline","middle");
+          bAgeLabel.append("text")
+                    .attr("x", ageScale(avgBachAge) - 116)
+                    .attr("y", 340)
+                    .text("Bachelorettes: 27")
+                    .style("font-size", "15px")
+                    .attr("alignment-baseline","middle");
+          bAgeLabel.append("line")
+                    .style("stroke", "darkgrey")
+                    .style("stroke-width", 3)
+                    .attr("x1", ageScale(avgBachAge))
+                    .attr("x2", ageScale(avgBachAge))
+                    .attr("y1", 300)
+                    .attr("y2", chartHeight)
+                    });
 
 
   }); // end promise
