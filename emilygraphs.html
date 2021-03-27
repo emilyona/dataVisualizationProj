@@ -141,6 +141,8 @@
       d3.csv("Project-1-Dataset-Bachelorette.csv", d3.autoType)
         .then((dataset)=>{
 
+
+
           const margin = { "top": 100, "right": 10, "bottom": 100, "left":100};
           const svg = d3.select("svg#batchelorette");
           const width = svg.attr("width");
@@ -242,6 +244,15 @@
                                   .attr("opacity", .6)
                                   .attr("fill", "#2E8BC0")
 
+           let sym = d3.symbol().type(d3.symbolStar).size(500);
+                                d3.select("svg#batchelorette")
+                                    .append("path")
+                                    .attr("cx", d=>elimscale(d["ElimWeek"]))
+                                    .attr("cy", d=>seasonscale(d['Season']))
+                                    .attr("d", sym)
+                                    .attr("fill", "red")
+                                    .attr("transform", "translate(50, 50)");
+
         });
 
 
@@ -249,6 +260,8 @@
 
 
     </script>
+
+
   </body>
 
 </html>
