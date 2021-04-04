@@ -16,3 +16,6 @@ the show. Whie some data was missing on the first seasons of the show,our graphs
 revealed that the period of 2009-2013 had almost no contestant minorities, both female and
 male. However, we saw that it has ultimately gotten better in the past few years, especially since
 the Bachelor had many scandals and got sued for underrepresented minorities in 2013.
+
+
+#### The main file with all data visualizations combined is "index.html".
